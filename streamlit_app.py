@@ -51,4 +51,13 @@ def main():
     st.title("📰 Top 5 News Stories for Black Americans")
     st.caption("Powered by Bing News & Azure OpenAI")
     
-    with st.spinner("Fetching and analyzing
+    with st.spinner("Fetching and analyzing the latest news..."):
+        articles = fetch_news()
+        summary = summarize_news(articles)
+
+    st.markdown("### 🧠 Curated Summary")
+    st.markdown(summary)
+
+if __name__ == "__main__":
+    main()
+
