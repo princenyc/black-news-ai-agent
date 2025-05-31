@@ -2,14 +2,19 @@ import streamlit as st
 import requests
 import openai
 
-openai.api_type = "azure"
-openai.api_key = st.secrets["AZURE_OPENAI_KEY"]
-openai.api_base = st.secrets["AZURE_OPENAI_ENDPOINT"]
-openai.api_version = "2023-05-15"
-
+# Setup Azure OpenAI credentials
+AZURE_OPENAI_KEY = st.secrets["AZURE_OPENAI_KEY"]
+AZURE_OPENAI_ENDPOINT = st.secrets["AZURE_OPENAI_ENDPOINT"]
 AZURE_OPENAI_DEPLOYMENT = st.secrets["AZURE_OPENAI_DEPLOYMENT"]
 BING_NEWS_KEY = st.secrets["BING_NEWS_KEY"]
 BING_NEWS_ENDPOINT = "https://api.bing.microsoft.com/v7.0/news/search"
+
+# Initialize Azure OpenAI client using SDK v1 syntax
+client = openai.AzureOpenAI(
+    api_key=AZURE_OPENAI_KEY,
+    api_version="2023-05-15",
+    azure_endpoint=AZURE_OPENAI_ENDPOINT
+)
 
 def fetch_news():
     headers = {"Ocp-Apim-Subscription-Key": BING_NEWS_KEY}
@@ -32,33 +37,18 @@ You are a news summarization agent for a Black-focused newsletter. From the arti
 
 {news_text}
     """
-    client = openai.AzureOpenAI(
-    api_key=st.secrets["AZURE_OPENAI_KEY"],
-    api_version="2023-05-15",
-    azure_endpoint=st.secrets["AZURE_OPENAI_ENDPOINT"]
-)
 
-response = client.chat.completions.create(
-    model=AZURE_OPENAI_DEPLOYMENT,
-    messages=[{"role": "user", "content": prompt}],
-    temperature=0.5,
-    max_tokens=1000
-)
+    response = client.chat.completions.create(
+        model=AZURE_OPENAI_DEPLOYMENT,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.5,
+        max_tokens=1000
+    )
 
-return response.choices[0].message.content
-
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content
 
 def main():
     st.title("📰 Top 5 News Stories for Black Americans")
     st.caption("Powered by Bing News & Azure OpenAI")
     
-    with st.spinner("Fetching and analyzing the latest news..."):
-        articles = fetch_news()
-        summary = summarize_news(articles)
-
-    st.markdown("### 🧠 Curated Summary")
-    st.markdown(summary)
-
-if __name__ == "__main__":
-    main()
+    with st.spinner("Fetching and analyzing
