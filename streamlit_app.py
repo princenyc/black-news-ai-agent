@@ -32,12 +32,21 @@ You are a news summarization agent for a Black-focused newsletter. From the arti
 
 {news_text}
     """
-    response = openai.ChatCompletion.create(
-        engine=AZURE_OPENAI_DEPLOYMENT,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.5,
-        max_tokens=1000
-    )
+    client = openai.AzureOpenAI(
+    api_key=st.secrets["AZURE_OPENAI_KEY"],
+    api_version="2023-05-15",
+    azure_endpoint=st.secrets["AZURE_OPENAI_ENDPOINT"]
+)
+
+response = client.chat.completions.create(
+    model=AZURE_OPENAI_DEPLOYMENT,
+    messages=[{"role": "user", "content": prompt}],
+    temperature=0.5,
+    max_tokens=1000
+)
+
+return response.choices[0].message.content
+
     return response["choices"][0]["message"]["content"]
 
 def main():
